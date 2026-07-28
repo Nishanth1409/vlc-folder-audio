@@ -1,30 +1,57 @@
 # VLC Folder Audio
 
-Small VLC helper: pick soundtrack language from the movie folder name  
-(`eng` → English, `Kannada` → Kannada, `Hindi` → Hindi) and prefer highest quality.
+VLC helper that picks the soundtrack from the **movie folder name** and prefers higher quality tracks.
 
-**Not part of System Maintenance** (desktop right-click toolkit). This is a separate media tool.
-
-## Files
-
-| File | Purpose |
+| Folder name contains | Prefers |
 | :--- | :--- |
-| `folderaudio.lua` | VLC Lua interface script |
-| `Install_FolderAudio.ps1` | Installs script into `%APPDATA%\vlc\lua\intf` and patches `vlcrc` |
+| `eng` | English |
+| `Kannada` | Kannada |
+| `Hindi` | Hindi |
 
-## Install
+---
 
-1. Close VLC.
-2. Run PowerShell:
+## Install from scratch
 
-```powershell
-cd D:\Projects\tools\vlc-folder-audio
-powershell -ExecutionPolicy Bypass -File .\Install_FolderAudio.ps1
-```
+### Requirements
+- [VLC](https://www.videolan.org/) for Windows  
+- PowerShell (built-in)
 
-3. Open a movie from a folder named like `eng`, `Hindi`, or `Kannada`.
+### Steps
+1. **Close VLC** completely (tray icon too).  
+2. Clone this repo:
+   ```bash
+   git clone https://github.com/Nishanth1409/vlc-folder-audio.git
+   cd vlc-folder-audio
+   ```
+3. Run the installer from **this folder**:
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\Install_FolderAudio.ps1
+   ```
+4. The script copies `folderaudio.lua` into your VLC user `lua\intf` folder and updates `vlcrc` (a timestamped backup is created first).
 
-## Paths
+### Verify
+1. Put a movie inside a folder named e.g. `eng`, `Hindi`, or `Kannada`.  
+2. Open that file with VLC.  
+3. Audio should follow the folder language when matching tracks exist.
 
-- Local: `D:\Projects\tools\vlc-folder-audio`
-- VLC config: `%APPDATA%\vlc\`
+---
+
+## How it works
+
+| File | Role |
+| :--- | :--- |
+| `folderaudio.lua` | VLC Lua interface logic |
+| `Install_FolderAudio.ps1` | Install / patch VLC user config |
+| `vlc-help.txt` | Extra notes (optional) |
+
+---
+
+## Pro tips
+
+- Re-run `Install_FolderAudio.ps1` after you update `folderaudio.lua`.  
+- If something breaks, restore the `vlcrc.bak-folderaudio-*` backup from your VLC user config folder (`%APPDATA%\vlc`).  
+- Adjust the Lua script if you need more language keywords.
+
+## License
+
+Personal / portfolio use. Review before redistributing.
