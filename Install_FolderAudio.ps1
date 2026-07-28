@@ -1,4 +1,4 @@
-# Install_FolderAudio.ps1 — VLC per-folder audio for D:\Movies
+# Install_FolderAudio.ps1 — VLC per-folder audio language from folder name
 # eng→English, Kannada→Kannada, Hindi→Hindi (else default); highest quality among matches.
 # Close VLC before running.
 
