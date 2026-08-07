@@ -48,8 +48,8 @@ a{color:inherit;text-decoration:none}
   background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
                    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
   background-size:64px 64px;
-  mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 75%);
-  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 75%)}
+  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 75%);
+  mask-image:radial-gradient(120% 90% at 50% 0%,#000 25%,transparent 75%)}
 .vignette{position:fixed;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(120% 80% at 50% -10%,transparent 40%,rgba(5,7,14,.85) 100%)}
 .shell{position:relative;z-index:2}
@@ -81,8 +81,8 @@ p{margin:0}
 .shead h2{margin:16px 0 14px}
 
 /* ---------- nav ---------- */
-.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px) saturate(150%);
-  -webkit-backdrop-filter:blur(18px) saturate(150%);
+.nav{position:sticky;top:0;z-index:50;-webkit-backdrop-filter:blur(18px) saturate(150%);
+  backdrop-filter:blur(18px) saturate(150%);
   background:linear-gradient(180deg,rgba(5,7,14,.82),rgba(5,7,14,.5));
   border-bottom:1px solid var(--stroke)}
 .nav .wrap{display:flex;align-items:center;gap:18px;height:66px}
@@ -147,6 +147,8 @@ p{margin:0}
 .mock-title{font-size:12.5px;color:var(--mut);font-family:var(--fm);margin-left:4px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .mock-body{padding:18px}
+.mock-body.flush{padding:0}
+.two > .rv > h2{margin:16px 0 14px}
 .mock-glow{position:absolute;inset:0;pointer-events:none}
 .mock-holder{position:relative}
 .mock-holder::before{content:'';position:absolute;inset:-14% -8%;z-index:-1;border-radius:40px;
@@ -201,8 +203,8 @@ p{margin:0}
 /* ---------- marquee ---------- */
 .mq{overflow:hidden;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke);
   background:rgba(255,255,255,.02);padding:15px 0;
-  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .mq-in{display:flex;gap:44px;width:max-content;animation:slide 32s linear infinite}
 .mq-in span{font-size:13px;font-weight:600;color:var(--dim);white-space:nowrap;font-family:var(--fm)}
 .mq-in span::after{content:'◆';margin-left:44px;color:var(--a2);opacity:.55}
@@ -359,7 +361,7 @@ footer{border-top:1px solid var(--stroke);padding:60px 0 44px;
         <div class="badges"><span class="pill">Lua interface</span><span class="pill">PowerShell installer</span><span class="pill">EN · Hindi · Kannada</span><span class="pill">vlcrc backed up</span></div>
         <div class="stats"><div class="stat"><b>3</b><span>Languages out of the box</span></div><div class="stat"><b>1</b><span>Lua file</span></div><div class="stat"><b>0</b><span>Manual track picks</span></div></div>
       </div>
-      <div class="mock-holder rv"><div class="mock tilt"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">folderaudio.lua — track selection</div></div><div class="mock-body" style="padding:0"><div class="term"><div class="o">opening  ...\Movies\Feature Film [Kannada]\film.mkv</div><div class="c">folder keyword  →  kannada</div><div class="o">track 1   mal   aac      2.0</div><div class="o">track 2   kan   eac3     5.1</div><div class="c">track 3   kan   truehd   7.1   ← selected</div><div class="w">reason: language match, highest quality available</div></div></div></div></div>
+      <div class="mock-holder rv"><div class="mock tilt"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">folderaudio.lua — track selection</div></div><div class="mock-body flush"><div class="term"><div class="o">opening  ...\Movies\Feature Film [Kannada]\film.mkv</div><div class="c">folder keyword  →  kannada</div><div class="o">track 1   mal   aac      2.0</div><div class="o">track 2   kan   eac3     5.1</div><div class="c">track 3   kan   truehd   7.1   ← selected</div><div class="w">reason: language match, highest quality available</div></div></div></div></div>
     </div>
   </section>
 
@@ -383,7 +385,7 @@ footer{border-top:1px solid var(--stroke);padding:60px 0 44px;
         <h2>How the track gets chosen</h2>
         <p class="lead">The decision the interface makes, the library layout it reads, and the install it performs.</p>
       </div>
-      <div class="gal"><figure class="rv"><div class="mock"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">Library layout</div></div><div class="mock-body"><div class="mrow act"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film (2014) [eng]</b><span>English track selected</span></div><span class="mtag">eng</span></div><div class="mrow"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film (2009) Hindi</b><span>Hindi track selected</span></div><span class="mtag">Hindi</span></div><div class="mrow"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film [Kannada]</b><span>Kannada track selected</span></div><span class="mtag">Kannada</span></div><div class="mhead">Recognised keywords</div><div class="mchips"><span>eng</span><span>english</span><span>hin</span><span>Hindi</span><span>kan</span><span>Kannada</span></div></div></div><figcaption>Name the folder once and every file inside follows it.</figcaption></figure><figure class="rv"><div class="mock"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">Install_FolderAudio.ps1</div></div><div class="mock-body" style="padding:0"><div class="term"><div class="c">PS&gt; .\Install_FolderAudio.ps1</div><div class="o">VLC profile  %APPDATA%\vlc</div><div class="o">copy  folderaudio.lua  →  lua\intf\</div><div class="o">backup  vlcrc  →  vlcrc.bak-folderaudio-&lt;timestamp&gt;</div><div class="c">patched  extraintf=luaintf, lua-intf=folderaudio</div><div class="w">start VLC again to apply</div></div></div></div><figcaption>The installer patches vlcrc and keeps a timestamped backup.</figcaption></figure></div>
+      <div class="gal"><figure class="rv"><div class="mock"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">Library layout</div></div><div class="mock-body"><div class="mrow act"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film (2014) [eng]</b><span>English track selected</span></div><span class="mtag">eng</span></div><div class="mrow"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film (2009) Hindi</b><span>Hindi track selected</span></div><span class="mtag">Hindi</span></div><div class="mrow"><div class="mico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="mtxt"><b>Feature Film [Kannada]</b><span>Kannada track selected</span></div><span class="mtag">Kannada</span></div><div class="mhead">Recognised keywords</div><div class="mchips"><span>eng</span><span>english</span><span>hin</span><span>Hindi</span><span>kan</span><span>Kannada</span></div></div></div><figcaption>Name the folder once and every file inside follows it.</figcaption></figure><figure class="rv"><div class="mock"><div class="mock-bar"><div class="dots"><i></i><i></i><i></i></div><div class="mock-title">Install_FolderAudio.ps1</div></div><div class="mock-body flush"><div class="term"><div class="c">PS&gt; .\Install_FolderAudio.ps1</div><div class="o">VLC profile  %APPDATA%\vlc</div><div class="o">copy  folderaudio.lua  →  lua\intf\</div><div class="o">backup  vlcrc  →  vlcrc.bak-folderaudio-&lt;timestamp&gt;</div><div class="c">patched  extraintf=luaintf, lua-intf=folderaudio</div><div class="w">start VLC again to apply</div></div></div></div><figcaption>The installer patches vlcrc and keeps a timestamped backup.</figcaption></figure></div>
       
     </div>
   </section>
@@ -405,7 +407,7 @@ powershell -ExecutionPolicy Bypass -File .\Install_FolderAudio.ps1</code></pre><
     <div class="wrap two">
       <div class="rv">
         <span class="eyebrow"><span class="dot"></span>Under the hood</span>
-        <h2 style="margin:16px 0 14px">Built with</h2>
+        <h2>Built with</h2>
         <p class="lead">One Lua interface file that VLC loads at startup, installed by a PowerShell script that always backs up before it patches.</p>
       </div>
       <div class="tbl rv"><div class="tr"><b>Player</b><span>VLC for Windows</span></div><div class="tr"><b>Logic</b><span>Lua interface — folderaudio.lua</span></div><div class="tr"><b>Installer</b><span>PowerShell — copies to %APPDATA%\vlc\lua\intf and patches vlcrc</span></div><div class="tr"><b>Preference order</b><span>Language match first, then codec and channel quality</span></div></div>
