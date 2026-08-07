@@ -134,6 +134,7 @@ p{margin:0}
 .mock{border-radius:16px;overflow:hidden;border:1px solid var(--stroke2);
   background:linear-gradient(170deg,rgba(18,24,40,.95),rgba(8,11,20,.98));
   box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03) inset;
+  -webkit-backdrop-filter:blur(8px);
   backdrop-filter:blur(8px)}
 .mock.tilt{transform:perspective(1500px) rotateY(-7deg) rotateX(3deg);transition:.6s}
 .mock.tilt:hover{transform:perspective(1500px) rotateY(-2deg) rotateX(1deg)}
@@ -417,7 +418,7 @@ powershell -ExecutionPolicy Bypass -File .\Install_FolderAudio.ps1</code></pre><
         <span class="eyebrow"><span class="dot"></span>FAQ</span>
         <h2>Good to know</h2>
       </div>
-      <details class="rv"><summary>What happens when no track matches the folder?</summary><p>VLC keeps its normal default track. The script only acts when it finds a language match.</p></details><details class="rv"><summary>Does it rename or re-encode my files?</summary><p>No. It only changes which existing audio track VLC selects during playback.</p></details><details class="rv"><summary>Can I add Tamil or Telugu?</summary><p>Yes. Add the keyword and language code pair inside folderaudio.lua, then run the installer again.</p></details><details class="rv"><summary>How do I uninstall it?</summary><p>Restore the vlcrc backup created during install and delete folderaudio.lua from the VLC lua\intf folder.</p></details>
+      <details class="rv"><summary>What happens when no track matches the folder?</summary><p>VLC keeps its normal default track. The script only acts when it finds a language match.</p></details><details class="rv"><summary>Does it rename or re-encode my files?</summary><p>No. It only changes which existing audio track VLC selects during playback.</p></details><details class="rv"><summary>Can I add more languages?</summary><p>Yes. Add the folder keyword and language codes in folderaudio.lua (Tamil and Telugu are already built in), then run the installer again.</p></details><details class="rv"><summary>How do I uninstall it?</summary><p>Restore the vlcrc backup created during install and delete folderaudio.lua from the VLC lua\intf folder.</p></details>
     </div>
   </section>
 

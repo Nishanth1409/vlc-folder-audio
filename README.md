@@ -9,10 +9,12 @@
 | `eng` | English |
 | `Hindi` | Hindi |
 | `Kannada` | Kannada |
+| `Tamil` | Tamil |
+| `Telugu` | Telugu |
 
 [![VLC](https://img.shields.io/badge/VLC-Lua%20interface-FF8800?logo=vlcmediaplayer&logoColor=white)](https://www.videolan.org/)
 [![PowerShell](https://img.shields.io/badge/installer-PowerShell-5391FE?logo=powershell&logoColor=white)](#-getting-started)
-[![Languages](https://img.shields.io/badge/audio-EN%20%C2%B7%20Hindi%20%C2%B7%20Kannada-1f9d55)](#-getting-started)
+[![Languages](https://img.shields.io/badge/audio-EN%20%C2%B7%20Hindi%20%C2%B7%20Kannada%20%C2%B7%20Tamil%20%C2%B7%20Telugu-1f9d55)](#-getting-started)
 
 [**Live site →**](https://nishanth1409.github.io/vlc-folder-audio/)
 
@@ -34,7 +36,7 @@ Movie libraries often keep language in the **folder name**, while the file itsel
 
 ## What you can do
 
-- **Folder → language** — `eng` / `Hindi` / `Kannada` keywords drive the preferred soundtrack.
+- **Folder → language** — `eng` / `Hindi` / `Kannada` / `Tamil` / `Telugu` folder names drive the preferred soundtrack.
 - **Quality-aware** — among language matches, prefer higher-quality codecs and channel layouts.
 - **One-click install** — PowerShell copies the Lua interface and patches `vlcrc` (with backup).
 - **No manual track pick** — loads as a VLC Lua interface automatically.
@@ -91,7 +93,7 @@ The script copies `folderaudio.lua` into your VLC user `lua\intf` folder and upd
 
 ### Verify
 
-1. Put a movie inside a folder named e.g. `eng`, `Hindi`, or `Kannada`.  
+1. Put a movie inside a folder named e.g. `eng`, `Hindi`, `Kannada`, `Tamil`, or `Telugu` under your Movies library (for example `D:\Media\Movies\Tamil\`).  
 2. Open that file with VLC.  
 3. Audio should follow the folder language when matching tracks exist.
 

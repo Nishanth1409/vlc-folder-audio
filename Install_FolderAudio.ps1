@@ -1,5 +1,7 @@
 # Install_FolderAudio.ps1 — VLC per-folder audio language from folder name
-# eng→English, Kannada→Kannada, Hindi→Hindi (else default); highest quality among matches.
+# Works under any "...\Movies\<Lang>\" tree (e.g. D:\Media\Movies\...).
+# eng→English, Kannada→Kannada, Hindi→Hindi, Tamil→Tamil, Telugu→Telugu
+# (missing language track → VLC default). Highest quality among matches.
 # Close VLC before running.
 
 $ErrorActionPreference = 'Stop'
@@ -56,5 +58,6 @@ Write-Host ''
 Write-Host 'Done. Settings:'
 Select-String -Path $Vlcrc -Pattern '^(extraintf|lua-intf|audio-language)=' | ForEach-Object { $_.Line }
 Write-Host ''
-Write-Host 'Test: open a file from D:\Movies\eng, D:\Movies\Kannada, and D:\Movies\Hindi.'
-Write-Host 'Audio menu should show English / Kannada / Hindi (or default if Hindi missing).'
+Write-Host 'Test folders under D:\Media\Movies\ (or any ...\Movies\...):'
+Write-Host '  eng, Kannada, Hindi, Tamil, Telugu'
+Write-Host 'Audio should follow the folder language when that track exists.'

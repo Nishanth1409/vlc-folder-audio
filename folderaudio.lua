@@ -1,11 +1,12 @@
 --[[
   folderaudio.lua — VLC 3.x interface (auto-loaded via extraintf=luaintf)
-  D:\Movies\eng     → English, highest quality
-  D:\Movies\Kannada → Kannada, highest quality
-  D:\Movies\Hindi   → Hindi if present, else default
-]]
 
-local MOVIES_ROOT = "d:/movies/"
+  Language comes from the folder under any ".../Movies/<Lang>/..." path
+  (tolerates common spelling mistakes).
+
+  Supported: eng/English, Kannada, Hindi, Tamil, Telugu
+  Among matches → highest quality. If language missing → VLC default.
+]]
 
 local FOLDER_LANGS = {
   eng = { "eng", "english", "en" },
@@ -14,10 +15,31 @@ local FOLDER_LANGS = {
   kan = { "kan", "kannada", "kn" },
   hindi = { "hin", "hindi", "hi" },
   hin = { "hin", "hindi", "hi" },
+  tamil = { "tam", "tamil", "ta" },
+  tam = { "tam", "tamil", "ta" },
+  telugu = { "tel", "telugu", "te" },
+  tel = { "tel", "telugu", "te" },
+}
+
+-- Common misspellings / shortcuts → canonical key in FOLDER_LANGS
+local FOLDER_ALIASES = {
+  kannada = "kannada", kannad = "kannada", kannadda = "kannada",
+  cannad = "kannada", cannada = "kannada", kanada = "kannada",
+  kannda = "kannada", kan = "kannada", kn = "kannada",
+  hindi = "hindi", hindee = "hindi", hindhi = "hindi", hind = "hindi",
+  hin = "hindi", hi = "hindi",
+  tamil = "tamil", thamil = "tamil", tamizh = "tamil",
+  tam = "tamil", ta = "tamil",
+  telugu = "telugu", thelugu = "telugu", telgu = "telugu", telegu = "telugu",
+  tel = "telugu", te = "telugu",
+  eng = "eng", english = "eng", en = "eng",
 }
 
 local last_uri = nil
 local last_applied = nil
+local assert_until = {}
+local tries = {}
+local preferred = {} -- uri → { prefs=..., id=... }
 
 local function lower(s)
   if not s then return "" end
@@ -34,24 +56,48 @@ local function decode_path(uri)
   return lower(path)
 end
 
-local function folder_prefs(path)
-  if not path then return nil end
-  if path:sub(1, #MOVIES_ROOT) ~= MOVIES_ROOT then
-    return nil
-  end
-  local rest = path:sub(#MOVIES_ROOT + 1)
-  local folder = rest:match("^([^/]+)")
-  if not folder then return nil end
-  return FOLDER_LANGS[folder]
+local function resolve_folder_key(name)
+  if not name or name == "" then return nil end
+  local n = lower(name):gsub("%s+", "")
+  if FOLDER_LANGS[n] then return n end
+  local alias = FOLDER_ALIASES[n]
+  if alias and FOLDER_LANGS[alias] then return alias end
+  if n:find("kannad", 1, true) or n:find("cannad", 1, true) then return "kannada" end
+  if n:find("hindi", 1, true) or n:find("hindee", 1, true) then return "hindi" end
+  if n:find("tamil", 1, true) or n:find("thamil", 1, true) or n:find("tamizh", 1, true) then return "tamil" end
+  if n:find("telugu", 1, true) or n:find("thelugu", 1, true) or n:find("telegu", 1, true) then return "telugu" end
+  if n:find("english", 1, true) or n == "eng" then return "eng" end
+  return nil
 end
 
+local function folder_prefs(path)
+  if not path then return nil end
+  local idx = path:find("/movies/", 1, true)
+  if idx then
+    local rest = path:sub(idx + #"/movies/")
+    local folder = rest:match("^([^/]+)")
+    local key = resolve_folder_key(folder)
+    if key then return FOLDER_LANGS[key] end
+  end
+  local best = nil
+  for segment in path:gmatch("[^/]+") do
+    local key = resolve_folder_key(segment)
+    if key then best = FOLDER_LANGS[key] end
+  end
+  return best
+end
+
+-- Match language from VLC track label only (Lua 5.1 safe).
+-- Do NOT use loose substring checks that hit "1TamilMV".
 local function lang_rank(text, prefs)
   if not prefs then return 0 end
-  local t = " " .. lower(text) .. " "
+  local t = lower(text or "")
+  local norm = " " .. t:gsub("[%[%]%(%),:;|/\\]", " ") .. " "
+
   for i, code in ipairs(prefs) do
-    if t:find("%[" .. code .. "%]") or t:find("%W" .. code .. "%W") then
-      return (#prefs - i + 1) * 100
-    end
+    local rank = (#prefs - i + 1) * 100
+    if t:find("%[" .. code .. "%]", 1) then return rank end
+    if #code >= 3 and norm:find(" " .. code .. " ", 1, true) then return rank end
   end
   return 0
 end
@@ -59,97 +105,33 @@ end
 local function quality_score(text)
   local t = lower(text or "")
   local score = 0
-
   if t:find("atmos", 1, true) or t:find("truehd", 1, true) then score = score + 50000000 end
   if t:find("dts%-hd") or t:find("dtshd", 1, true) then score = score + 45000000 end
-  if t:find("eac3", 1, true) or t:find("dd%+") or t:find("ddp", 1, true) then score = score + 30000000 end
+  if t:find("eac3", 1, true) or t:find("dd%+", 1) or t:find("ddp", 1, true) or t:find("dd+", 1, true) then
+    score = score + 30000000
+  end
   if t:find("ac3", 1, true) or t:find("ac%-3") then score = score + 20000000 end
   if t:find("aac", 1, true) then score = score + 5000000 end
 
-  if t:find("7%.1", 1, true) or t:find("channels:8", 1, true) then
-    score = score + 8000000
-  elseif t:find("5%.1", 1, true) or t:find("channels:6", 1, true) then
-    score = score + 6000000
-  elseif t:find("2%.0", 1, true) or t:find("stereo", 1, true) or t:find("channels:2", 1, true) then
-    score = score + 2000000
+  if t:find("7%.1", 1, true) then score = score + 8000000
+  elseif t:find("5%.1", 1, true) then score = score + 6000000
+  elseif t:find("2%.0", 1, true) or t:find("stereo", 1, true) then score = score + 2000000
   end
 
   local br = t:match("(%d+)%s*kbps")
-  if br then
-    score = score + tonumber(br) * 100
-  else
-    br = t:match("bitrate[%s:]*([%d]+)")
-    if br then
-      local n = tonumber(br)
-      if n and n > 10000 then n = math.floor(n / 1000) end
-      if n then score = score + n * 100 end
-    end
-  end
-
+  if br then score = score + tonumber(br) * 100 end
   return score
 end
 
-local function stream_infos(item)
-  local list = {}
-  if not item then return list end
-  local ok, info = pcall(function() return item:info() end)
-  if not ok or not info then return list end
-
-  local rows = {}
-  for cat, data in pairs(info) do
-    if type(data) == "table" then
-      local blob = lower(tostring(cat))
-      local is_audio, is_video = false, false
-      for k, v in pairs(data) do
-        local lk, lv = lower(k), lower(tostring(v))
-        blob = blob .. " " .. lk .. ":" .. lv
-        if lk:find("type", 1, true) then
-          if lv:find("audio", 1, true) then is_audio = true end
-          if lv:find("video", 1, true) then is_video = true end
-        end
-        if lk == "codec" then
-          if lv:find("^a_") or lv:find("aac", 1, true) or lv:find("ac3", 1, true)
-            or lv:find("eac3", 1, true) or lv:find("dts", 1, true)
-            or lv:find("truehd", 1, true) or lv:find("mp4a", 1, true) then
-            is_audio = true
-          end
-          if lv:find("^v_") or lv:find("h264", 1, true) or lv:find("hev", 1, true)
-            or lv:find("avc", 1, true) then
-            is_video = true
-          end
-        end
-      end
-      if is_audio and not is_video then
-        table.insert(rows, { cat = tostring(cat), blob = blob })
-      end
-    end
-  end
-
-  table.sort(rows, function(a, b) return a.cat < b.cat end)
-  for _, r in ipairs(rows) do
-    table.insert(list, r.blob)
-  end
-  return list
-end
-
-local function collect_tracks(input, item)
+local function collect_tracks(input)
   local tracks = {}
   local values, texts = vlc.var.get_list(input, "audio-es")
   if not values then return tracks end
-
-  local infos = stream_infos(item)
-  local idx = 0
   for i, id in ipairs(values) do
     local nid = tonumber(id)
     if nid and nid >= 0 then
-      idx = idx + 1
-      local text = (texts and texts[i]) and tostring(texts[i]) or ("track " .. tostring(idx))
-      local extra = infos[idx] or ""
-      table.insert(tracks, {
-        id = id,
-        text = text,
-        combined = lower(text) .. " " .. extra,
-      })
+      local text = (texts and texts[i]) and tostring(texts[i]) or ("track " .. tostring(i))
+      table.insert(tracks, { id = id, text = text, combined = lower(text) })
     end
   end
   return tracks
@@ -157,22 +139,21 @@ end
 
 local function pick_best(tracks, prefs)
   if not prefs or #tracks == 0 then return nil end
-
   local best_id, best_score = nil, -1
   local matched = false
-
   for _, tr in ipairs(tracks) do
     local lr = lang_rank(tr.combined, prefs)
     if lr > 0 then
       matched = true
       local score = lr * 100000000 + quality_score(tr.combined)
+      -- Prefer earlier ES id only as tiny tie-break (higher quality already dominates)
+      score = score - (tonumber(tr.id) or 0)
       if score > best_score then
         best_score = score
         best_id = tr.id
       end
     end
   end
-
   if not matched then return nil end
   return best_id
 end
@@ -180,31 +161,46 @@ end
 local function apply_for_uri(uri)
   local path = decode_path(uri)
   local prefs = folder_prefs(path)
-  if not prefs then
-    return true
-  end
+  if not prefs then return true end
 
   local input = vlc.object.input()
   if not input then return false end
 
-  local item = vlc.input.item()
-  local tracks = collect_tracks(input, item)
+  -- Help VLC's own track picker too (comma list)
+  pcall(function()
+    vlc.var.set(input, "audio-language", table.concat(prefs, ","))
+  end)
+  pcall(function()
+    vlc.config.set("audio-language", prefs[1])
+  end)
+
+  local tracks = collect_tracks(input)
   if #tracks == 0 then return false end
 
   local best = pick_best(tracks, prefs)
-  if not best then
-    return true -- Hindi rule: no match → keep default
-  end
+  if not best then return true end
 
+  preferred[uri] = { prefs = prefs, id = best }
   local cur = vlc.var.get(input, "audio-es")
   if tostring(cur) ~= tostring(best) then
     vlc.var.set(input, "audio-es", best)
-    vlc.msg.info("[folderaudio] " .. table.concat(prefs, "/") .. " → audio-es=" .. tostring(best))
+    vlc.msg.info("[folderaudio] " .. table.concat(prefs, "/") .. " → audio-es=" .. tostring(best)
+      .. " from track text")
   end
   return true
 end
 
-local tries = {}
+local function reassert(uri)
+  local pref = preferred[uri]
+  if not pref then return end
+  local input = vlc.object.input()
+  if not input then return end
+  local cur = vlc.var.get(input, "audio-es")
+  if tostring(cur) ~= tostring(pref.id) then
+    vlc.var.set(input, "audio-es", pref.id)
+  end
+end
+
 while true do
   pcall(function()
     local item = vlc.input.item()
@@ -215,13 +211,19 @@ while true do
           last_uri = uri
           last_applied = nil
           tries[uri] = 0
+          preferred[uri] = nil
+          assert_until[uri] = vlc.misc.mdate() + 6000000 -- keep enforcing 6s
         end
+
+        local now = vlc.misc.mdate()
         if last_applied ~= uri then
           tries[uri] = (tries[uri] or 0) + 1
           local ok = apply_for_uri(uri)
-          if ok or tries[uri] >= 25 then
+          if ok or tries[uri] >= 40 then
             last_applied = uri
           end
+        elseif assert_until[uri] and now < assert_until[uri] then
+          reassert(uri)
         end
       end
     else
@@ -229,5 +231,5 @@ while true do
       last_applied = nil
     end
   end)
-  vlc.misc.mwait(vlc.misc.mdate() + 400000)
+  vlc.misc.mwait(vlc.misc.mdate() + 250000)
 end
